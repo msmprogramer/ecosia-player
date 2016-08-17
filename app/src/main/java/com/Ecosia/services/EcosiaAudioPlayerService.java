@@ -2,6 +2,7 @@ package com.Ecosia.services;
 
 import android.Manifest;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.media.AudioManager;
@@ -10,8 +11,13 @@ import android.os.IBinder;
 import android.os.PowerManager;
 import android.support.annotation.Nullable;
 import android.util.Log;
+import android.widget.RemoteViews;
+import android.widget.Toast;
 
+import com.Ecosia.R;
 import com.Ecosia.model.AudioFile;
+import com.Ecosia.ui.EcosiaPlayerWidget;
+import com.Ecosia.utils.EcosiaAudioRetriever;
 
 import java.io.IOException;
 
@@ -37,9 +43,23 @@ public class EcosiaAudioPlayerService extends Service implements
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         String action = intent.getAction();
-        AudioFile audioFile = intent.getParcelableExtra(EXTRA_MEDIA_PATH);
         if (action.equals(ACTION_PLAY)) {
-            playAudio(audioFile.getPath());
+            AudioFile audioFile =
+                    EcosiaAudioRetriever.
+                            newInstance().
+                            getRandomAudioFile(getApplicationContext());
+
+            if (audioFile == null) {
+                Toast.makeText(
+                        getApplicationContext(),
+                        getApplicationContext().getString(R.string.text_no_files_to_play),
+                        Toast.LENGTH_LONG
+                ).show();
+
+                return 0;
+            }
+
+            playAudio(audioFile);
         } else if (action.equals(ACTION_STOP)) {
             stopAudio();
         }
@@ -78,7 +98,7 @@ public class EcosiaAudioPlayerService extends Service implements
         }
     }
 
-    private void playAudio(String audioPath) {
+    private void playAudio(AudioFile audioFile) {
         if (mediaPlayer == null) {
             initMediaPlayer();
         } else {
@@ -86,12 +106,13 @@ public class EcosiaAudioPlayerService extends Service implements
         }
 
         try {
-            mediaPlayer.setDataSource(audioPath);
+            mediaPlayer.setDataSource(audioFile.getPath());
             mediaPlayer.prepare();
         } catch (IOException e) {
             e.printStackTrace();
         }
 
+        updateEcosiaAudioPlayerWidget(getApplicationContext(), audioFile);
     }
 
     private void stopAudio() {
@@ -99,11 +120,24 @@ public class EcosiaAudioPlayerService extends Service implements
             mediaPlayer.stop();
             releaseMediaPlayer();
         }
+
     }
 
     private void releaseMediaPlayer() {
         mediaPlayer.reset();
         mediaPlayer.release();
         mediaPlayer = null;
+        stopSelf();
+    }
+
+    private void updateEcosiaAudioPlayerWidget(Context context, AudioFile audioFile) {
+        RemoteViews remoteViews = new RemoteViews(context.getPackageName(),
+                R.layout.widget_ecosia_player);
+
+        remoteViews.setTextViewText(R.id.artistTextView, audioFile.getArtist());
+        remoteViews.setTextViewText(R.id.titleTextView, audioFile.getTitle());
+
+        EcosiaPlayerWidget.pushWidgetUpdate(context.getApplicationContext(),
+                remoteViews);
     }
 }

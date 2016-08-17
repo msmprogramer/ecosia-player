@@ -6,7 +6,7 @@ import android.os.Parcelable;
 /**
  * Created by Mohamed Salama on 8/16/2016.
  */
-public class AudioFile implements Parcelable {
+public class AudioFile{
 
     private String artist;
     private String title;
@@ -30,34 +30,4 @@ public class AudioFile implements Parcelable {
         return path;
     }
 
-    protected AudioFile(Parcel in) {
-        artist = in.readString();
-        title = in.readString();
-        path = in.readString();
-    }
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(artist);
-        dest.writeString(title);
-        dest.writeString(path);
-    }
-
-    @SuppressWarnings("unused")
-    public static final Parcelable.Creator<AudioFile> CREATOR = new Parcelable.Creator<AudioFile>() {
-        @Override
-        public AudioFile createFromParcel(Parcel in) {
-            return new AudioFile(in);
-        }
-
-        @Override
-        public AudioFile[] newArray(int size) {
-            return new AudioFile[size];
-        }
-    };
 }

@@ -39,13 +39,24 @@ public class EcosiaAudioRetriever {
         {
             count = cursor.getCount();
 
+            Log.d(TAG, "getAllAudioFiles: "+ count);
+
             if(count > 0)
             {
                 while(cursor.moveToNext())
                 {
-                    String artist = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ARTIST));
-                    String title = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.TITLE));
-                    String path = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.DATA));
+                    String artist = cursor.getString(
+                            cursor.getColumnIndex(MediaStore.Audio.Media.ARTIST)
+                    );
+                    String title = cursor.getString(
+                            cursor.getColumnIndex(MediaStore.Audio.Media.TITLE)
+                    );
+                    String path = cursor.getString(
+                            cursor.getColumnIndex(MediaStore.Audio.Media.DATA)
+                    );
+
+                    Log.d(TAG, "getAllAudioFiles: "+artist +" : "+ title + " : " + path);
+
                     audioFiles.add(new AudioFile(artist, title, path));
                 }
 
@@ -61,6 +72,9 @@ public class EcosiaAudioRetriever {
 
     public  AudioFile getRandomAudioFile(Context  context) {
         List<AudioFile> audiosFile = getAllAudioFiles(context);
+        if (audiosFile.isEmpty()) {
+            return null;
+        }
         return audiosFile.get(new Random().nextInt(audiosFile.size()));
     }
 }

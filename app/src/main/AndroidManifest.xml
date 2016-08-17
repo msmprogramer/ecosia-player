@@ -4,25 +4,22 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.WAKE_LOCK"/>
 
-    om.android.providers.media.MediaProvider
     <application
         android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@drawable/ic_ecosia_logo"
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
-
-        <activity
-            android:name=".ui.MainActivity"
-            android:label="@string/app_name"
-            android:noHistory="true">
+        <receiver android:name=".ui.EcosiaPlayerWidget" >
             <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-
-                <category android:name="android.intent.category.LAUNCHER"/>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
-        </activity>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/ecosia_widget_provider" />
+        </receiver>
 
         <service
             android:name=".services.EcosiaAudioPlayerService"
